@@ -11,7 +11,6 @@
 - [Dashboard Page](https://minimal-kit-react.vercel.app/)
 - [Users Page](https://minimal-kit-react.vercel.app/user)
 - [Products Page](https://minimal-kit-react.vercel.app/products)
-- [Blog Page](https://minimal-kit-react.vercel.app/blog)
 - [Login Page](https://minimal-kit-react.vercel.app/login)
 - [Not Found Page](https://minimal-kit-react.vercel.app/404)
 

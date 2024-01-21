@@ -1,29 +1,26 @@
-import { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { AppView } from 'src/sections/overview/view';
-import CreateReport from 'src/sections/overview/app-create-report';
+import * as React from 'react';
+import { Box, Card, Typography, Divider } from '@mui/material';
 import FindReport from 'src/sections/overview/app-find-report';
+import CreateReport from 'src/sections/overview/app-create-report';
 
 export default function AppPage() {
-
-  const [reportId, setReportId] = useState(null);
-
   return (
-    <>
-      <Helmet>
-        <title> Dashboard | Minimal UI </title>
-      </Helmet>
+    <Box className="page-container" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', padding: '20px', bgcolor: '#f5f5f5' }}>
+      <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 600, bgcolor: '#fff', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', padding: '20px' }}>
+        
+        <Typography variant="h4" className="title" sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          Find a Report
+        </Typography>
+        <FindReport />
+        
+        <Divider sx={{ width: '100%', my: 2 }} />
 
-      {reportId != null && <AppView /> }
-      {reportId == null && 
-        <div className='flex justify-content items-center flex-row gap-8'>
-          <h1 className="text-2xl font-bold">Find a report </h1>
-          <FindReport/>
-          <h1>or</h1>
-          <CreateReport/>
-        </div>
-      }
-      
-    </>
+        <Typography variant="h4" className="title" sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          Create a New Report
+        </Typography>
+        <CreateReport />
+        
+      </Card>
+    </Box>
   );
 }

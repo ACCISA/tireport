@@ -26,6 +26,7 @@ module.exports = function (app) {
     app.post("/register", registerRouter)
     app.post("/appointment", appointmentsRouter)
     app.post("/report", reportsRouter)
+    app.post("/report_name/:reportId", reportsRouter)
     
     //GETS
     app.get("/logout", logoutRouter)

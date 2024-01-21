@@ -1,6 +1,6 @@
-# <center> Conuhack 8 </center>
+# Conuhack 8
 
-# Name of the project
+## Name of the project
 
 TirePort
 

@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Pagination from '@mui/material/Pagination';
+import { pagination } from 'src/utils/processCSV';
 
 export default function BasicTable(props) {
 
@@ -15,7 +16,6 @@ export default function BasicTable(props) {
     const [showCSV, setShowCSV] = useState(true);
     const [rows, setRows] = useState([]);
     const [page, setPage] = useState(0);
-    const createData = (call_date, apnt_date, car_type)  => ({ call_date, apnt_date, car_type });
         
     const handleChange = (event, value) => {
       setPage(value);
@@ -31,15 +31,7 @@ export default function BasicTable(props) {
 
 
     useEffect(() => {
-        const itemsPerPage = 50;
-        const tempRows = [];
-        let startIndex = page * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        if (startIndex === 0) startIndex+=1;
-        for (let i = startIndex; i < endIndex; i+=1){
-            tempRows.push(createData(csvData[i][0],csvData[i][1],csvData[i][2]))
-        }
-        setRows(tempRows)
+        setRows(pagination(csvData,page))
     }, [csvData, page])
 
     useEffect(() => {}, [rows,showCSV])

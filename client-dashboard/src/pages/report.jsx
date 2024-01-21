@@ -21,16 +21,62 @@ import AppTrafficBySite from '../sections/overview/app-traffic-by-site';
 import AppCurrentSubject from '../sections/overview/app-current-subject';
 import AppConversionRates from '../sections/overview/app-conversion-rates';
 import { TextField } from '@mui/material';
+import { formatCarAndTruckChartData, formatChartData, processRows } from 'src/utils/processCSV';
+
+const  generateReportName = (prefix) => {
+  const timestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  return `${prefix} ${timestamp}`;
+}
 
 export default function Report(){
 
     const [csvData, setCsvData] = useState([]);
-    const [reportName, setReportName] = useState("default name");
+    const [reportName, setReportName] = useState(generateReportName("TireShop Report"));
     const [totalEntries, setTotalEntries] = useState(100);
     const [validEntries, setValidEntries] = useState(170);
     const [invalidEntries, setInvalidEntries] = useState(10);
     const [walkinEntries, setWalkinEntries] = useState(20);
     const [isNameFocused, setIsNamedFocused] = useState(false);
+    const [showData, setShowData] = useState({
+      showWalkin: true,
+      showValid: true,
+      showInvalid: true,
+    })
+    const [chartData,setChartData] = useState({
+      labels: [
+        '01/01/2003',
+        '02/01/2003',
+        '03/01/2003',
+        '04/01/2003',
+        '05/01/2003',
+        '06/01/2003',
+        '07/01/2003',
+        '08/01/2003',
+        '09/01/2003',
+        '10/01/2003',
+        '11/01/2003',
+      ],
+      series: [
+        {
+          name: 'Invalid',
+          type: 'line',
+          fill: 'solid',
+          data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+        },
+        {
+          name: 'Valid',
+          type: 'area',
+          fill: 'gradient',
+          data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
+        },
+        {
+          name: 'Walk-in',
+          type: 'line',
+          fill: 'solid',
+          data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+        },
+      ],
+    })
     const [classes, setClasses] = useState(
       [
         { label: 'Class 1 Truck', value: 4344 },
@@ -46,69 +92,16 @@ export default function Report(){
         { label: 'Truck', value: 5435 }
       ]
     )
+    const [turnawayRates, setTurnawayRates] = useState({
+      series: [
+        { label: 'Passed Work Hours Walkin', value: 0 },
+        { label: 'Passed Wrok Hours Booking', value: 0 },
+        { label: 'No Availability Walking', value: 0 },
+        { label: 'No Availability Booking', value: 0 },
+      ],
+    })
+    const [totalTurnaways, setTotalTurnaways] = useState(0);
     const location = useLocation();
-
-    
-    
-    const handleFile = (data) => {
-      const headers = ["CallTime", "AppointmentTime", "CarType"];
-      const parsedData = [headers, ...data];
-  
-      setCsvData(parsedData);
-    };
-  
-    const countCarTypes = () => {
-      const carTypeCount = {};
-  
-      csvData.slice(1).forEach((row) => {
-        const carType = row[2]; // Assuming car type is in the third column
-        carTypeCount[carType] = (carTypeCount[carType] || 0) + 1;
-      });
-  
-      return carTypeCount;
-    };
-  
-    // Convert car type count to data format suitable for Google Charts
-    const formatChartData = () => {
-      const carTypeCount = countCarTypes();
-      const chartData = [['CarType', 'Count']];
-  
-      Object.entries(carTypeCount).forEach(([carType, count]) => {
-        chartData.push([carType, count]);
-      });
-  
-      return chartData;
-    };
-  
-    // Count the occurrences of each car and truck type
-    const countCarAndTruckTypes = () => {
-      const carTypeCount = { Car: 0, Truck: 0 };
-  
-      csvData.slice(1).forEach((row) => {
-        const carType = row[2]; // Assuming car type is in the third column
-        const isTruck = carType.toLowerCase().includes('truck');
-        
-        if (isTruck) {
-          carTypeCount.Truck += 1;
-        } else {
-          carTypeCount.Car += 1;
-        }
-      });
-  
-      return carTypeCount;
-    };
-  
-    // Convert car and truck type count to data format suitable for Google Charts
-    const formatCarAndTruckChartData = () => {
-      const carAndTruckCount = countCarAndTruckTypes();
-      const chartData = [['Vehicle Type', 'Count']];
-  
-      Object.entries(carAndTruckCount).forEach(([vehicleType, count]) => {
-        chartData.push([vehicleType, count]);
-      });
-  
-      return chartData;
-    };
 
     useEffect(() => {
       setCsvData(location.state.key)
@@ -120,6 +113,25 @@ export default function Report(){
       }
     }, [isNameFocused])
     
+    useEffect(() => {
+      const { turnaway,walkins,validBooking,validWalkin,metadata } = processRows(csvData);
+      setTurnawayRates({
+        series: [
+          { label: 'Passed Work Hours Walk-in', value: turnaway.passed_hours_walkin.length },
+          { label: 'Passed Work Hours Booking', value: turnaway.passed_hours_booking.length },
+          { label: 'No Availability Walk-in', value: turnaway.no_availability_walkin.length },
+          { label: 'No Availability Booking', value: turnaway.no_availability_booking.length },
+        ],
+      })
+      setTotalEntries(metadata.total_entries)
+      setValidEntries(validBooking.total + validWalkin.total)
+      setInvalidEntries(turnaway.total)
+      setWalkinEntries(walkins.total)
+      setTotalTurnaways(turnaway.total)
+    },[csvData])
+
+    useEffect(() => {},[turnawayRates,totalTurnaways,totalEntries,validEntries,walkinEntries])
+
     return (
       <div className='flex justify-center items-center bg-red-500 flex-col'>
          <Container maxWidth="xl">
@@ -153,6 +165,7 @@ export default function Report(){
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
+            className="cursor-pointer"
             title="Total Entries"
             total={totalEntries}
             color="success"
@@ -191,41 +204,7 @@ export default function Report(){
           <AppWebsiteVisits
             title="Website Visits"
             subheader="(+43%) than last year"
-            chart={{
-              labels: [
-                '01/01/2003',
-                '02/01/2003',
-                '03/01/2003',
-                '04/01/2003',
-                '05/01/2003',
-                '06/01/2003',
-                '07/01/2003',
-                '08/01/2003',
-                '09/01/2003',
-                '10/01/2003',
-                '11/01/2003',
-              ],
-              series: [
-                {
-                  name: 'Team A',
-                  type: 'column',
-                  fill: 'solid',
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: 'Team B',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: 'Team C',
-                  type: 'line',
-                  fill: 'solid',
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-                },
-              ],
-            }}
+            chart={chartData}
           />
         </Grid>
 
@@ -241,22 +220,9 @@ export default function Report(){
 
         <Grid xs={12} md={6} lg={8}>
           <AppConversionRates
-            title="Conversion Rates"
-            subheader="(+43%) than last year"
-            chart={{
-              series: [
-                { label: 'Italy', value: 400 },
-                { label: 'Japan', value: 430 },
-                { label: 'China', value: 448 },
-                { label: 'Canada', value: 470 },
-                { label: 'France', value: 540 },
-                { label: 'Germany', value: 580 },
-                { label: 'South Korea', value: 690 },
-                { label: 'Netherlands', value: 1100 },
-                { label: 'United States', value: 1200 },
-                { label: 'United Kingdom', value: 1380 },
-              ],
-            }}
+            title="Turnaway Rates"
+            subheader={totalTurnaways+" Total Turnaways"}
+            chart={turnawayRates}
           />
         </Grid>
 
@@ -357,7 +323,7 @@ export default function Report(){
             height='300px'
             chartType="BarChart"
             loader={<div>Loading Chart</div>}
-            data={formatChartData()}
+            data={formatChartData(csvData)}
             options={{
               title: 'Car Type Count',
               chartArea: { width: '50%' },
@@ -378,7 +344,7 @@ export default function Report(){
             height='300px'
             chartType="BarChart"
             loader={<div>Loading Chart</div>}
-            data={formatCarAndTruckChartData()}
+            data={formatCarAndTruckChartData(csvData)}
             options={{
               title: 'Vehicle Type Count',
               chartArea: { width: '50%' },

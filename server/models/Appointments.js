@@ -1,12 +1,16 @@
-const mangoose = require("mongoose");
-const { Schema } = mangoose;
-
+const mangoose = require("mongoose")
+const { Schema } = mangoose
+const AutoIncrement = require('mongoose-sequence')(mangoose)
 const AppointmentsSchema = new Schema({
-    id_user: {type:mongoose.Schema.Types.ObjectId, ref:"User"},
-    id_vehicle : {type:mongoose.Schema.Types.ObjectId, ref:"Vehicle"},
-    createdAt: { type : Date, default: Date.now }
-});
+    //requestedAt: { type : Date, default: Date.now },
+    id: { type : Number, unique : true},
+    appointmentTime: { type : Date },
+    vtype: {type : String},
+    vclass : {type : String},
+}, {timestamps: true})
 
-const AppointmentsModel = mangoose.model("Appointment", AppointmentsSchema);
+AppointmentsSchema.plugin(AutoIncrement, { inc_field: 'id' })
 
-module.exports = AppointmentsModel;
+const AppointmentsModel = mangoose.model("Appointments", AppointmentsSchema)
+
+module.exports = AppointmentsModel

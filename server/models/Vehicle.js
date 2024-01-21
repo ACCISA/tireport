@@ -1,11 +1,11 @@
-const mangoose = require("mongoose");
-const { Schema } = mangoose;
+const mangoose = require("mongoose")
+const { Schema } = mangoose
 
 const VehicleSchema = new Schema({
   type: {type: String}, //car or truck
-  class: {type: String} //c m full-size or class 1/2
-});
+  class_: {type: String} //c m full-size or class 1/2
+})
 
-const VehicleModel = mangoose.model("Vehicle", VehicleSchema);
+const VehicleModel = mangoose.model("Vehicle", VehicleSchema)
 
-module.exports = VehicleModel;
+module.exports = VehicleModel

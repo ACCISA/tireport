@@ -1,4 +1,4 @@
-# Conuhack 8
+# <center> Conuhack 8 </center>
 
 # Name of the project
 

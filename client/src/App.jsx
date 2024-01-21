@@ -5,6 +5,8 @@ import Index from './pages/Index';
 import  { RequireAuth }  from "react-auth-kit";
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Booking from './pages/Booking';
+import Report from './pages/Report';
 
 export default function App() {
 
@@ -19,6 +21,8 @@ export default function App() {
         </RequireAuth>} />
         <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<Register/>}/>
+        <Route path="/booking" element={<Booking/>}/>
+        <Route path="/report" element={<Report/>}/>
       </Route>
     </Routes>
 

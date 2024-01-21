@@ -7,8 +7,8 @@ import { styled, useTheme } from '@mui/material/styles';
 import { fNumber } from 'src/utils/format-number';
 
 import Chart, { useChart } from 'src/components/chart';
-
-// ----------------------------------------------------------------------
+import { Button } from '@mui/material';
+import { useState, useEffect } from 'react';
 
 const CHART_HEIGHT = 400;
 
@@ -31,7 +31,22 @@ const StyledChart = styled(Chart)(({ theme }) => ({
 export default function AppCurrentVisits({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
-  const { colors, series, options } = chart;
+  const [showType, setShowType] = useState(false);
+  
+  const { colors, options, types, classes } = chart;
+
+  const handleShowType = () => {
+    if (showType === false){
+      setShowType(true);
+      return;
+    }
+    setShowType(false);
+  }
+
+  let series = classes
+  if (showType === true){
+    series = types
+  }
 
   const chartSeries = series.map((i) => i.value);
 
@@ -78,10 +93,14 @@ export default function AppCurrentVisits({ title, subheader, chart, ...other }) 
     ...options,
   });
 
+  useEffect(() => {
+
+  }, [showType])
+
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 5 }} />
-
+      <Button className="pl-4 text-4xl" onClick={handleShowType}>Show Type</Button>
       <StyledChart
         dir="ltr"
         type="pie"
